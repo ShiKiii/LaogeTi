@@ -126,4 +126,5 @@ return [
     136 => ['cn' => '玛西', 'en' => 'marci', 'img' => 'marci_lg.png'],
     137 => ['cn' => '兽', 'en' => 'primal_beast', 'img' => 'primal_beast_lg.png'],
     138 => ['cn' => '琼英碧灵', 'en' => 'muerta', 'img' => 'muerta_lg.png'],
+    154 => ['cn' => '凯', 'en' => 'kez', 'img' => 'kez_lg.png'],
 ];

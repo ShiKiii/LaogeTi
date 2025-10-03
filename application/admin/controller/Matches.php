@@ -79,5 +79,43 @@ class Matches extends Backend
         return json($result);
     }
 
+    /**
+     * 删除
+     */
+    public function del($ids = "")
+    {
+        if (!$this->request->isPost()) {
+            $this->error(__("Invalid parameters"));
+        }
+        $ids = $ids ? $ids : $this->request->post("ids");
+    
+        // 转成数组
+        $ids = is_array($ids) ? $ids : explode(',', $ids);
+    
+        // 先查出对应的 match_id 列表
+        $matchIds = $this->model->whereIn('id', $ids)->column('match_id');
+    
+        if (empty($matchIds)) {
+            $this->error(__('No Results were found'));
+        }
+    
+        // 启动事务，保证一致性
+        Db::startTrans();
+        try {
+            // 删除主表
+            $this->model->whereIn('id', $ids)->delete();
+    
+            // 删除子表
+            Db::name('dota_banpicks')->whereIn('match_id', $matchIds)->delete();
+            Db::name('dota_player_heroes')->whereIn('match_id', $matchIds)->delete();
+    
+            Db::commit();
+            $this->success();
+        } catch (\Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage());
+        }
+    }
+
 
 }

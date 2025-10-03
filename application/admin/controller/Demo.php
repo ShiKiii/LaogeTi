@@ -76,6 +76,8 @@ class Demo extends Backend
         $output = shell_exec($cmd);
 
         if (!$output) {
+            // 删除上传的文件
+            @unlink($filePath);
             return $this->error('demo解析失败');
         }
 
@@ -83,6 +85,9 @@ class Demo extends Backend
         $jsonData = json_decode($output, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
+            // 删除上传的文件
+            @unlink($filePath);
+        
             return $this->error('解析JSON出错');
         }
         
