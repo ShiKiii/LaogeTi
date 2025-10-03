@@ -67,13 +67,31 @@ class Banpick extends Backend
         // 3) 胜率 Top10（带 play_count / win_count / win_rate），过滤出场次数过少的英雄（阈值可改）
         $min_play = 2;
         $winTop = Db::name('dota_player_heroes')
-            ->field("hero_id, COUNT(*) as play_count, SUM(CASE WHEN is_winner=1 THEN 1 ELSE 0 END) as win_count, 
-                    ROUND(SUM(CASE WHEN is_winner=1 THEN 1 ELSE 0 END)/COUNT(*)*100,2) as win_rate")
-            ->group('hero_id')
-            ->having("play_count >= {$min_play}")
-            ->order('win_rate DESC')
-            ->limit(10)
-            ->select();
+                ->field("
+                    hero_id, 
+                    COUNT(*) as play_count, 
+                    SUM(CASE WHEN is_winner=1 THEN 1 ELSE 0 END) as win_count, 
+                    ROUND(SUM(CASE WHEN is_winner=1 THEN 1 ELSE 0 END)/COUNT(*)*100,2) as win_rate
+                ")
+                ->group('hero_id')
+                ->having("play_count >= {$min_play}")
+                ->order('win_rate DESC, play_count DESC')
+                ->limit(10)
+                ->select();
+    
+        // 4) 胜率最低 Top10
+        $lowWinTop = Db::name('dota_player_heroes')
+                ->field("
+                    hero_id,
+                    COUNT(*) as play_count,
+                    SUM(is_winner) as win_count,
+                    ROUND(SUM(is_winner)/COUNT(*)*100,2) as win_rate
+                ")
+                ->group('hero_id')
+                ->having("play_count >= {$min_play}")
+                ->order('win_rate ASC, play_count DESC')
+                ->limit(10)
+                ->select();
     
         // 把英雄名字和图片拼上去，并保证字段名统一到前端
         $mapHero = function($row) use ($heroes) {
@@ -95,12 +113,14 @@ class Banpick extends Backend
         $pickTop = array_map($mapHero, $pickTop);
         $banTop  = array_map($mapHero, $banTop);
         $winTop  = array_map($mapHero, $winTop);
+        $lowWinTop  = array_map($mapHero, $lowWinTop);
     
         // 为前端方便直接输出 ECharts 数据（JSON）
         $this->view->assign([
             'pickTop' => $pickTop,
             'banTop'  => $banTop,
             'winTop'  => $winTop,
+            'lowWinTop'  => $lowWinTop,
             // JSON 字符串给 JS 使用（在模板里用 PHP echo 输出）
             'pickNamesJson'  => json_encode(array_column($pickTop, 'name'), JSON_UNESCAPED_UNICODE),
             'pickCountsJson' => json_encode(array_column($pickTop, 'pick_count')),
@@ -111,6 +131,7 @@ class Banpick extends Backend
             'banImgsJson'   => json_encode(array_column($banTop, 'img')),
     
             'winListJson'   => json_encode($winTop, JSON_UNESCAPED_UNICODE),
+            'lowWinListJson'   => json_encode($lowWinTop, JSON_UNESCAPED_UNICODE),
             'min_play'      => $min_play
         ]);
     

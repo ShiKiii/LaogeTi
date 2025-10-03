@@ -37,11 +37,28 @@
 
     <!-- 🏆👑🥈🥉 -->
     <div class="hero-card mb-3">
-        <h5>胜率榜 Top 10（仅展示 比赛数 >= {$min_play}）</h5>
+        <h5>轮椅榜 Top 10（仅展示 比赛数 >= {$min_play}）</h5>
         <div class="win-grid mt-2">
             <?php $i = 0; foreach ($winTop as $h): $i++; ?>
             <div class="win-item">
                 <?php if($i==1): ?><div class="crown gold">👑</div><?php elseif($i==2): ?><div class="crown silver">🥈</div><?php elseif($i==3): ?>
+                <div class="crown bronze">🥉</div>
+                <?php endif; ?>
+                <img src="<?php echo $h['img']; ?>" alt="<?php echo $h['name']; ?>">
+                <div style="margin-top:6px;font-weight:600;"><?php echo $h['name']; ?></div>
+                <div style="color:#28a745;font-weight:700;"><?php echo $h['win_rate']; ?>%</div>
+                <div style="font-size:12px;color:#777;"><?php echo $h['win_count']; ?>/<?php echo $h['play_count']; ?></div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    
+    <div class="hero-card mb-3">
+        <h5>陷阱榜 Top 10（仅展示 比赛数 >= {$min_play}）</h5>
+        <div class="win-grid mt-2">
+            <?php $i = 0; foreach ($lowWinTop as $h): $i++; ?>
+            <div class="win-item">
+                <?php if($i==1): ?><div class="crown gold">💀</div><?php elseif($i==2): ?><div class="crown silver">🥈</div><?php elseif($i==3): ?>
                 <div class="crown bronze">🥉</div>
                 <?php endif; ?>
                 <img src="<?php echo $h['img']; ?>" alt="<?php echo $h['name']; ?>">
