@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks -Multiviews
+  RewriteEngine On
+
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+  
+  # 如果想根路径 / 直接到后台登录
+RewriteRule ^$ laoge.php/index/login [L]  # 重定向到 admin 模块登录
+</IfModule>

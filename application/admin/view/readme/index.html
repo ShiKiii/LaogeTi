@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>上传比赛操作指南</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f5f6fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            animation: fadeIn 1s ease-out;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2f3640;
+            margin-bottom: 40px;
+            font-size: 28px;
+        }
+
+        .step {
+            margin-bottom: 30px;
+            padding-left: 60px;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-radius: 8px;
+        }
+
+        .step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background-color: #f9f9f9;
+        }
+
+        .step::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #3498db;
+            color: #fff;
+            font-weight: bold;
+            width: 45px;
+            height: 45px;
+            line-height: 45px;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .step h2 {
+            margin: 0 0 12px;
+            color: #2f3640;
+            font-size: 20px;
+        }
+
+        .step p {
+            margin: 0;
+            color: #636e72;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .step img {
+            margin-top: 12px;
+            max-width: 100%;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .step img:hover {
+            transform: scale(1.03);
+        }
+
+        @keyframes fadeIn {
+            0% {opacity: 0; transform: translateY(20px);}
+            100% {opacity: 1; transform: translateY(0);}
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            .step { padding-left: 50px; }
+            .step::before { width: 40px; height: 40px; line-height: 40px; font-size: 16px; }
+            .step h2 { font-size: 18px; }
+            .step p { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>比赛操作指南</h1>
+
+        <div class="step" data-step="1">
+            <h2>下载与上传.dem文件</h2>
+            <p>比赛完成后，由胜方队长下载比赛的 <code>.dem</code> 文件</p>
+            <img src="/images/1.png" alt="下载demo示意图">
+        </div>
+
+        <div class="step" data-step="2">
+            <h2>如何找到.dem文件</h2>
+            <p>在下载的.dem文件目录下找到对应的比赛截图（或使用客户端生成的比赛回放截图），作为上传资料使用。</p>
+            <img src="/images/2.png" alt="找到.dem文件示意图">
+            <img src="/images/3.png" alt="找到.dem文件示意图">
+        </div>
+
+        <div class="step" data-step="3">
+            <h2>上传.dem文件到系统</h2>
+            <p>进入后台“上传录像”页面，选择文件，点击“上传并解析”按钮。</p>
+            <img src="/images/4.png" alt="上传文件示意图">
+            <img src="/images/5.png" alt="解析文件示意图">
+        </div>
+
+    </div>
+</body>
+</html>

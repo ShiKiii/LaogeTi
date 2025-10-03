@@ -1,0 +1,208 @@
+{
+  "playback_time": 2767.2002,
+  "playback_ticks": 83016,
+  "playback_frames": 41455,
+  "game_info": {
+    "dota": {
+      "match_id": 8488416467,
+      "game_mode": 2,
+      "game_winner": 2,
+      "player_info": [
+        {
+          "hero_name": "npc_dota_hero_broodmother",
+          "player_name": "哆啦艾梦",
+          "is_fake_client": false,
+          "steamid": 76561198083040894,
+          "game_team": 2
+        },
+        {
+          "hero_name": "npc_dota_hero_pudge",
+          "player_name": "无敌小宝贝",
+          "is_fake_client": false,
+          "steamid": 76561198328897135,
+          "game_team": 2
+        },
+        {
+          "hero_name": "npc_dota_hero_lich",
+          "player_name": "who s you daddy",
+          "is_fake_client": false,
+          "steamid": 76561199495631309,
+          "game_team": 2
+        },
+        {
+          "hero_name": "npc_dota_hero_marci",
+          "player_name": "青菜多少钱一斤",
+          "is_fake_client": false,
+          "steamid": 76561198152568227,
+          "game_team": 2
+        },
+        {
+          "hero_name": "npc_dota_hero_medusa",
+          "player_name": "只打劣势局",
+          "is_fake_client": false,
+          "steamid": 76561198368300810,
+          "game_team": 2
+        },
+        {
+          "hero_name": "npc_dota_hero_spectre",
+          "player_name": "！",
+          "is_fake_client": false,
+          "steamid": 76561198089912223,
+          "game_team": 3
+        },
+        {
+          "hero_name": "npc_dota_hero_witch_doctor",
+          "player_name": "尘封小店",
+          "is_fake_client": false,
+          "steamid": 76561198102243992,
+          "game_team": 3
+        },
+        {
+          "hero_name": "npc_dota_hero_necrolyte",
+          "player_name": "Let`s think",
+          "is_fake_client": false,
+          "steamid": 76561198141453260,
+          "game_team": 3
+        },
+        {
+          "hero_name": "npc_dota_hero_ogre_magi",
+          "player_name": "棋迹·鸽咕子",
+          "is_fake_client": false,
+          "steamid": 76561198058332946,
+          "game_team": 3
+        },
+        {
+          "hero_name": "npc_dota_hero_undying",
+          "player_name": "猖狂！",
+          "is_fake_client": false,
+          "steamid": 76561198141709616,
+          "game_team": 3
+        }
+      ],
+      "leagueid": 0,
+      "picks_bans": [
+        {
+          "is_pick": false,
+          "team": 2,
+          "hero_id": 114
+        },
+        {
+          "is_pick": false,
+          "team": 3,
+          "hero_id": 82
+        },
+        {
+          "is_pick": false,
+          "team": 3,
+          "hero_id": 75
+        },
+        {
+          "is_pick": false,
+          "team": 2,
+          "hero_id": 128
+        },
+        {
+          "is_pick": false,
+          "team": 3,
+          "hero_id": 135
+        },
+        {
+          "is_pick": false,
+          "team": 3,
+          "hero_id": 129
+        },
+        {
+          "is_pick": false,
+          "team": 2,
+          "hero_id": 81
+        },
+        {
+          "is_pick": true,
+          "team": 2,
+          "hero_id": 14
+        },
+        {
+          "is_pick": true,
+          "team": 3,
+          "hero_id": 85
+        },
+        {
+          "is_pick": false,
+          "team": 2,
+          "hero_id": 123
+        },
+        {
+          "is_pick": false,
+          "team": 2,
+          "hero_id": 88
+        },
+        {
+          "is_pick": false,
+          "team": 3,
+          "hero_id": 39
+        },
+        {
+          "is_pick": true,
+          "team": 3,
+          "hero_id": 67
+        },
+        {
+          "is_pick": true,
+          "team": 2,
+          "hero_id": 31
+        },
+        {
+          "is_pick": true,
+          "team": 2,
+          "hero_id": 136
+        },
+        {
+          "is_pick": true,
+          "team": 3,
+          "hero_id": 30
+        },
+        {
+          "is_pick": true,
+          "team": 3,
+          "hero_id": 84
+        },
+        {
+          "is_pick": true,
+          "team": 2,
+          "hero_id": 94
+        },
+        {
+          "is_pick": false,
+          "team": 2,
+          "hero_id": 1
+        },
+        {
+          "is_pick": false,
+          "team": 3,
+          "hero_id": 106
+        },
+        {
+          "is_pick": false,
+          "team": 3,
+          "hero_id": 11
+        },
+        {
+          "is_pick": false,
+          "team": 2,
+          "hero_id": 16
+        },
+        {
+          "is_pick": true,
+          "team": 2,
+          "hero_id": 61
+        },
+        {
+          "is_pick": true,
+          "team": 3,
+          "hero_id": 36
+        }
+      ],
+      "end_time": 1759245864
+    }
+  }
+}

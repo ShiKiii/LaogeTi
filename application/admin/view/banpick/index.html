@@ -1,0 +1,199 @@
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+.hero-card { border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.06); padding:16px; }
+.crown { font-size:20px; position:absolute; top:-30px; left:50%; transform:translateX(-50%); }
+.crown.gold  { color: #FFD700; text-shadow: 0 0 6px rgba(255,215,0,0.6); }
+.crown.silver{ color: #C0C0C0; }
+.crown.bronze{ color: #CD7F32; }
+.win-grid { display:flex; flex-wrap:wrap; gap:12px; margin-top: 3.5rem !important; }
+.win-item { width:110px; text-align:center; position:relative; margin-top: 2rem; }
+.win-item img { width:100px;height:56px;border-radius:6px; box-shadow:0 4px 10px rgba(0,0,0,0.08); }
+.rank-badge { display:inline-block; width:30px; height:30px; border-radius:50%; color:#fff; text-align:center; line-height:30px; margin-right:6px; font-weight:700;}
+.rank-badge.gold{ background:linear-gradient(45deg,#FFD700,#FFA500); }
+.rank-badge.silver{ background:linear-gradient(45deg,#C0C0C0,#A9A9A9); }
+.rank-badge.bronze{ background:linear-gradient(45deg,#CD7F32,#8B4513); }
+.hero-label { display:flex; align-items:center; gap:8px; }
+.hero-icon-small { width:36px; height:20px; border-radius:4px; }
+</style>
+
+<div class="container mt-3">
+    <h3 class="mb-3">英雄榜单</h3>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="hero-card">
+                <h5>Pick榜 Top 10</h5>
+            <div id="pickChart" style="height:420px;"></div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="hero-card">
+            <h5>Ban榜 Top 10</h5>
+            <div id="banChart" style="height:420px;"></div>
+        </div>
+        </div>
+    </div>
+
+    <!-- 🏆👑🥈🥉 -->
+    <div class="hero-card mb-3">
+        <h5>胜率榜 Top 10（仅展示 比赛数 >= {$min_play}）</h5>
+        <div class="win-grid mt-2">
+            <?php $i = 0; foreach ($winTop as $h): $i++; ?>
+            <div class="win-item">
+                <?php if($i==1): ?><div class="crown gold">👑</div><?php elseif($i==2): ?><div class="crown silver">🥈</div><?php elseif($i==3): ?>
+                <div class="crown bronze">🥉</div>
+                <?php endif; ?>
+                <img src="<?php echo $h['img']; ?>" alt="<?php echo $h['name']; ?>">
+                <div style="margin-top:6px;font-weight:600;"><?php echo $h['name']; ?></div>
+                <div style="color:#28a745;font-weight:700;"><?php echo $h['win_rate']; ?>%</div>
+                <div style="font-size:12px;color:#777;"><?php echo $h['win_count']; ?>/<?php echo $h['play_count']; ?></div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+
+
+<!-- ECharts -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script>
+/* 从后端注入的 JSON（控制器中已赋值） */
+var pickNames  = <?php echo $pickNamesJson ?? '[]'; ?>;
+var pickCounts = <?php echo $pickCountsJson ?? '[]'; ?>;
+var pickImgs   = <?php echo $pickImgsJson ?? '[]'; ?>;
+
+var banNames  = <?php echo $banNamesJson ?? '[]'; ?>;
+var banCounts = <?php echo $banCountsJson ?? '[]'; ?>;
+var banImgs   = <?php echo $banImgsJson ?? '[]'; ?>;
+
+/* helper: 构建 Y 轴图片 */
+function buildYAxisImages(names, imgs) {
+    var categories = [];
+    var rich = {};
+    names.forEach(function(name, idx){
+        var key = 'a' + idx;
+        categories.push('{'+key+'| }'); // 只显示图片，不显示名字
+        rich[key] = {
+            width: 50,
+            height: 28,
+            align: 'left',
+            backgroundColor: {
+                image: imgs[idx] || ''
+            },
+            padding: [0,8,0,0]
+        };
+    });
+    return {categories: categories, rich: rich};
+}
+
+/* PICK 图 */
+(function(){
+    var target = document.getElementById('pickChart');
+    var chart = echarts.init(target);
+
+    // 先按 pickCounts 从高到低排序
+    var data = pickCounts.map((v,i)=>({name: pickNames[i], img: pickImgs[i], value: v}));
+    data.sort((a,b)=>b.value - a.value);
+
+    var sortedNames = data.map(d=>d.name);
+    var sortedImgs = data.map(d=>d.img);
+    var sortedCounts = data.map(d=>d.value);
+
+    var d = buildYAxisImages(sortedNames, sortedImgs);
+
+    var option = {
+        tooltip: { 
+            trigger: 'axis', 
+            axisPointer: { type: 'shadow' },
+            formatter: function(params){
+                // 显示英雄名字 + 数值
+                var idx = params[0].dataIndex;
+                return sortedNames[idx] + ': ' + sortedCounts[idx];
+            }
+        },
+        grid: { left: '18%', right: '6%', top: '6%', bottom: '6%' },
+        xAxis: { show: false },   // 隐藏 x 轴
+        yAxis: {
+            type: 'category',
+            inverse: true,        // 从上到下高到低
+            data: d.categories,
+            axisLine: { show: false },
+            axisTick: { show: false },
+            axisLabel: {
+                rich: d.rich,
+                formatter: function(v){ return v; },
+                interval: 0
+            }
+        },
+        series: [{
+            type: 'bar',
+            data: sortedCounts,
+            label: { 
+                show: true, 
+                position: 'right',
+                formatter: function(params){
+                    return params.value; // 在柱子末端显示名字
+                }
+            },
+            itemStyle: { color: '#3b8bff' }
+        }]
+    };
+    chart.setOption(option);
+})();
+
+/* BAN 图 */
+(function(){
+    var target = document.getElementById('banChart');
+    var chart = echarts.init(target);
+
+    // 先按 banCounts 从高到低排序
+    var data = banCounts.map((v,i)=>({name: banNames[i], img: banImgs[i], value: v}));
+    data.sort((a,b)=>b.value - a.value);
+
+    var sortedNames = data.map(d=>d.name);
+    var sortedImgs = data.map(d=>d.img);
+    var sortedCounts = data.map(d=>d.value);
+
+    var d = buildYAxisImages(sortedNames, sortedImgs);
+
+    var option = {
+        tooltip: { 
+            trigger: 'axis', 
+            axisPointer: { type: 'shadow' },
+            formatter: function(params){
+                // 显示英雄名字 + 数值
+                var idx = params[0].dataIndex;
+                return sortedNames[idx] + ': ' + sortedCounts[idx];
+            }
+        },
+        grid: { left: '18%', right: '6%', top: '6%', bottom: '6%' },
+        xAxis: { show: false },   // 隐藏 x 轴
+        yAxis: {
+            type: 'category',
+            inverse: true,        // 从上到下高到低
+            data: d.categories,
+            axisLine: { show: false },
+            axisTick: { show: false },
+            axisLabel: {
+                rich: d.rich,
+                formatter: function(v){ return v; },
+                interval: 0
+            }
+        },
+        series: [{
+            type: 'bar',
+            data: sortedCounts,
+            label: { 
+                show: true, 
+                position: 'right',
+                formatter: function(params){
+                    return params.value;
+                }
+            },
+            itemStyle: { color: '#3b8bff' }
+        }]
+    };
+    chart.setOption(option);
+})();
+</script>
