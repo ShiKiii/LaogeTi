@@ -16,8 +16,8 @@
 .hero-icon-small { width:36px; height:20px; border-radius:4px; }
 </style>
 
-<div class="container mt-3">
-    <h3 class="mb-3">英雄榜单</h3>
+<div class="container">
+    <h1 class="mb-3">英雄榜单</h1>
 
     <div class="row">
         <div class="col-md-6 mb-3">
@@ -37,7 +37,7 @@
 
     <!-- 🏆👑🥈🥉 -->
     <div class="hero-card mb-3">
-        <h5>轮椅榜 Top 10（仅展示 比赛数 >= {$min_play}）</h5>
+        <h5>轮椅榜 Top 16（仅展示 比赛数 >= {$min_play}）</h5>
         <div class="win-grid mt-2">
             <?php $i = 0; foreach ($winTop as $h): $i++; ?>
             <div class="win-item">
@@ -54,7 +54,7 @@
     </div>
     
     <div class="hero-card mb-3">
-        <h5>陷阱榜 Top 10（仅展示 比赛数 >= {$min_play}）</h5>
+        <h5>陷阱榜 Top 16（仅展示 比赛数 >= {$min_play}）</h5>
         <div class="win-grid mt-2">
             <?php $i = 0; foreach ($lowWinTop as $h): $i++; ?>
             <div class="win-item">

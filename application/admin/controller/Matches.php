@@ -65,12 +65,14 @@ class Matches extends Backend
             $v->winners = "";
             $v->losers = "";
             foreach ($player_heroes_data as $kk => $vv){
-                $player_name = Db::name('dota_players')->where('steamid', $vv['steamid'])->find()['player_name'];
+                $player = Db::name('dota_players')->where('steamid', $vv['steamid'])->find();
+                $player_name = $player['player_name'];
+                $player_id = $player['id'];
                 
                 if($vv['is_winner']== 1){
-                    $v->winners .= '<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv['hero_id']]['en'].'_lg.png" style="width:41px;height:23px;border-radius:3px;"><span class="label label-success" style="margin-right:5px">'.$player_name.'</span>';
+                    $v->winners .= '<img class="hero_img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv['hero_id']]['en'].'_lg.png"><span class="label label-success player_name" data-player-id="'.$player_id.'">'.$player_name.'</span>';
                 }else{
-                    $v->losers .= '<img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv['hero_id']]['en'].'_lg.png" style="width:41px;height:23px;border-radius:3px;"><span class="label label-danger" style="margin-right:5px">'.$player_name.'</span>';
+                    $v->losers .= '<img class="hero_img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv['hero_id']]['en'].'_lg.png"><span class="label label-danger player_name" data-player-id="'.$player_id.'">'.$player_name.'</span>';
                 }
             }
         }

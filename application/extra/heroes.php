@@ -121,10 +121,10 @@ return [
     126 => ['cn' => '虚无之灵', 'en' => 'void_spirit', 'img' => 'void_spirit_lg.png'],
     128 => ['cn' => '电炎绝手', 'en' => 'snapfire', 'img' => 'snapfire_lg.png'],
     129 => ['cn' => '玛尔斯', 'en' => 'mars', 'img' => 'mars_lg.png'],
-    131 => ['cn' => '百戏大王', 'en' => 'ringmaster', 'img' => 'ringmaster_lg.png'],
     135 => ['cn' => '破晓晨星', 'en' => 'dawnbreaker', 'img' => 'dawnbreaker_lg.png'],
     136 => ['cn' => '玛西', 'en' => 'marci', 'img' => 'marci_lg.png'],
     137 => ['cn' => '兽', 'en' => 'primal_beast', 'img' => 'primal_beast_lg.png'],
     138 => ['cn' => '琼英碧灵', 'en' => 'muerta', 'img' => 'muerta_lg.png'],
+    153 => ['cn' => '百戏大王', 'en' => 'ringmaster', 'img' => 'ringmaster_lg.png'],
     154 => ['cn' => '凯', 'en' => 'kez', 'img' => 'kez_lg.png'],
 ];

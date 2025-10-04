@@ -140,6 +140,39 @@ class Players extends Backend
         $result = ['total' => $list->total(), 'rows' => $list->items()];
         return json($result);
     }
+    
+    
+
+    /**
+     * 获取选手最近 20 场战绩
+     */
+    public function recentMatches($player_id = 0, $offset = 0, $limit = 10)
+    {
+        if (!$player_id) {
+            $this->error('Invalid STEAMID');
+        }
+        
+        $steamid = Db::name('dota_players')->where('id', $player_id)->find()['steamid'];
+        
+        $heros = Config('heroes');
+
+        $matches = Db::name('dota_player_heroes')
+            ->alias('ph')
+            ->join('dota_matches m', 'ph.match_id = m.match_id')
+            ->field('ph.match_id, ph.hero_id, ph.is_winner, m.end_time')
+            ->where('ph.steamid', $steamid)
+            ->order('m.end_time DESC')
+            ->limit($offset, $limit)
+            ->select();
+
+        foreach ($matches as &$row) {
+            $row['hero_img'] = "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/" . $heros[$row['hero_id']]['img'];
+            $row['result'] = $row['is_winner'] ? '✅' :'❌';
+            $row['match_time'] = date('Y-m-d H:i', $row['end_time']);
+        }
+
+        $this->success('', null, $matches);
+    }
 
 
 }

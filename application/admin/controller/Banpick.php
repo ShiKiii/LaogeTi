@@ -76,7 +76,7 @@ class Banpick extends Backend
                 ->group('hero_id')
                 ->having("play_count >= {$min_play}")
                 ->order('win_rate DESC, play_count DESC')
-                ->limit(10)
+                ->limit(16)
                 ->select();
     
         // 4) 胜率最低 Top10
@@ -90,7 +90,7 @@ class Banpick extends Backend
                 ->group('hero_id')
                 ->having("play_count >= {$min_play}")
                 ->order('win_rate ASC, play_count DESC')
-                ->limit(10)
+                ->limit(16)
                 ->select();
     
         // 把英雄名字和图片拼上去，并保证字段名统一到前端
