@@ -29,6 +29,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'name', title: '联赛名称', operate: 'LIKE'},
                         {field: 'start_time', title: __('Start_time'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
                         {field: 'end_time', title: __('End_time'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
+                        {field: 'price', title: __('奖金'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
+                        {field: 'notes', title: __('备注'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
                         {field: 'status', title: "是否启用", operate: false, formatter: Table.api.formatter.toggle},
                         {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}

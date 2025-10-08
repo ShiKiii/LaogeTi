@@ -102,6 +102,20 @@ class Players extends Backend
         
             $player_heroes_data = $player_heroes_query->select();
             
+            //TI冠军
+            $tis = Db::name('dota_champion')->whereRaw('JSON_CONTAINS_PATH(team, "one", \'$."'.$v->steamid.'"\')')->select();
+            
+            $v->champion = "";
+            if(!empty($tis)){
+                for ($i = 0; $i < count($tis); $i++) {
+                     $v->champion .= "<span class='trophy' data-toggle='tooltip' data-placement='top'
+                                          title='".$tis[$i]['ti_name']."'>
+                                        🏆
+                                    </span>";
+                }
+            }
+            
+            
             $hero_stats = []; // hero_id => ['play'=>x,'win'=>y]
 
             foreach ($player_heroes_data as $ph) {

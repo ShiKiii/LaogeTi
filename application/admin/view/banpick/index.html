@@ -18,6 +18,16 @@
 
 <div class="container">
     <h1 class="mb-3">英雄榜单</h1>
+    
+    <div class="form-inline" style="margin-bottom:10px;">
+        <label class="control-label" style="margin-right:5px;">选择赛季：</label>
+        <select id="league_select" class="form-control">
+            <option value="">全部赛季</option>
+            {volist name="leagues" id="league"}
+                <option value="{$league.id}">{$league.name}</option>
+            {/volist}
+        </select>
+    </div>
 
     <div class="row">
         <div class="col-md-6 mb-3">
@@ -73,6 +83,7 @@
 
 
 <!-- ECharts -->
+<script src="/assets/js/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 <script>
 /* 从后端注入的 JSON（控制器中已赋值） */

@@ -18,6 +18,7 @@ class Banpick extends Backend
      * @var \app\admin\model\Banpick
      */
     protected $model = null;
+    protected $noNeedRight = [];
 
     public function _initialize()
     {
@@ -42,6 +43,9 @@ class Banpick extends Backend
      */
     public function index()
     {
+        // 页面加载时获取所有赛季
+        $leagues = Db::name('dota_league')->where('status',1)->order('start_time desc')->select();
+            
         // 读取 heroes 配置（assume key=hero_id）
         $heroes = config('heroes');
     
@@ -65,7 +69,7 @@ class Banpick extends Backend
         // 如果你没有单独的 ban 表，请见下面“没有 ban 表怎么办”的说明
     
         // 3) 胜率 Top10（带 play_count / win_count / win_rate），过滤出场次数过少的英雄（阈值可改）
-        $min_play = 2;
+        $min_play = 4;
         $winTop = Db::name('dota_player_heroes')
                 ->field("
                     hero_id, 
@@ -117,6 +121,7 @@ class Banpick extends Backend
     
         // 为前端方便直接输出 ECharts 数据（JSON）
         $this->view->assign([
+            'leagues' => $leagues,
             'pickTop' => $pickTop,
             'banTop'  => $banTop,
             'winTop'  => $winTop,

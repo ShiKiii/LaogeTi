@@ -45,6 +45,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             if(!value) return '';
                             return value.map(h=> h.hero_img+'('+h.play + ' / ' + h.win_rate+'%)').join(' ');
                         }},
+                        {field: 'champion', title: __('TI冠军'), operate:false},
                     ]
                 ]
             });
