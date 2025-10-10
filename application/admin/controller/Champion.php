@@ -62,15 +62,52 @@ class Champion extends Backend
         $heroes = config('heroes');
         
         foreach ($list as $k => $v) {
-            $team = json_decode($v['team'], true);
-            $v->team = '';
-            foreach ($team as $kk => $vv){
-                $player = Db::name('dota_players')->where('steamid', $kk)->find();
-                $player_name = $player['player_name'];
-                $player_id = $player['id'];
-                
-                $v->team .= '<img class="hero_img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv]['en'].'_lg.png"><span class="label label-success player_name" data-player-id="'.$player_id.'">'.$player_name.'</span>';
-                
+            $team1 = json_decode($v['team1'], true);
+            $v->team1 = '';
+            if(!empty($team1)){
+                foreach ($team1 as $kk => $vv){
+                    $player = Db::name('dota_players')->where('steamid', $kk)->find();
+                    $player_name = $player['player_name'];
+                    $player_id = $player['id'];
+                    $v->team1 .= '<img class="hero_img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv]['en'].'_lg.png"><span class="label label-success player_name" data-player-id="'.$player_id.'">'.$player_name.'</span>';
+                    
+                }
+            }
+            
+            $team2 = json_decode($v['team2'], true);
+            $v->team2 = '';
+            if(!empty($team2)){
+                foreach ($team2 as $kk => $vv){
+                    $player = Db::name('dota_players')->where('steamid', $kk)->find();
+                    $player_name = $player['player_name'];
+                    $player_id = $player['id'];
+                    $v->team2 .= '<img class="hero_img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv]['en'].'_lg.png"><span class="label label-success player_name" data-player-id="'.$player_id.'">'.$player_name.'</span>';
+                    
+                }
+            }
+            
+            $team3 = json_decode($v['team3'], true);
+            $v->team3 = '';
+            if(!empty($team3)){
+                foreach ($team3 as $kk => $vv){
+                    $player = Db::name('dota_players')->where('steamid', $kk)->find();
+                    $player_name = $player['player_name'];
+                    $player_id = $player['id'];
+                    $v->team3 .= '<img class="hero_img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv]['en'].'_lg.png"><span class="label label-success player_name" data-player-id="'.$player_id.'">'.$player_name.'</span>';
+                    
+                }
+            }
+            
+            $team4 = json_decode($v['team4'], true);
+            $v->team4 = '';
+            if(!empty($team4)){
+                foreach ($team4 as $kk => $vv){
+                    $player = Db::name('dota_players')->where('steamid', $kk)->find();
+                    $player_name = $player['player_name'];
+                    $player_id = $player['id'];
+                    $v->team4 .= '<img class="hero_img" src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/heroes/'.$heroes[$vv]['en'].'_lg.png"><span class="label label-success player_name" data-player-id="'.$player_id.'">'.$player_name.'</span>';
+                    
+                }
             }
         }
         $result = ['total' => $list->total(), 'rows' => $list->items()];
@@ -93,13 +130,42 @@ class Champion extends Backend
             $this->error(__('Parameter %s can not be empty', ''));
         }
         
-        $team = [];
-        $game = Db::name('dota_player_heroes')->where('match_id',$params['match_id'])->where('is_winner',1)->select();
-        foreach($game as $k => $v){
-            $team[$v['steamid']] = $v['hero_id'];
+        //冠亚
+        $params['team1'] = '{}';
+        $params['team2'] = '{}';
+        if(!empty($params['win_match_id'])){
+            $team1 = [];
+            $team2 = [];
+            $game = Db::name('dota_player_heroes')->where('match_id',$params['win_match_id'])->select();
+            foreach($game as $k => $v){
+                if($v['is_winner'] == 1){
+                    $team1[$v['steamid']] = $v['hero_id'];
+                }else{
+                    $team2[$v['steamid']] = $v['hero_id'];
+                }
+            }
+            $params['team1'] = json_encode($team1);
+            $params['team2'] = json_encode($team2);
         }
         
-        $params['team'] = json_encode($team);
+        //季殿
+        $params['team3'] = '{}';
+        $params['team4'] = '{}';
+        if(!empty($params['lose_match_id'])){
+            $team3 = [];
+            $team4 = [];
+            $game = Db::name('dota_player_heroes')->where('match_id',$params['lose_match_id'])->select();
+            
+            foreach($game as $k => $v){
+                if($v['is_winner'] == 1){
+                    $team3[$v['steamid']] = $v['hero_id'];
+                }else{
+                    $team4[$v['steamid']] = $v['hero_id'];
+                }
+            }
+            $params['team3'] = json_encode($team3);
+            $params['team4'] = json_encode($team4);
+        }
         
         if ($this->dataLimit && $this->dataLimitFieldAutoFill) {
             $params[$this->dataLimitField] = $this->auth->id;
@@ -121,6 +187,92 @@ class Champion extends Backend
         }
         if ($result === false) {
             $this->error(__('No rows were inserted'));
+        }
+        $this->success();
+    }
+
+    /**
+     * 编辑
+     *
+     * @param $ids
+     * @return string
+     * @throws DbException
+     * @throws \think\Exception
+     */
+    public function edit($ids = null)
+    {
+        $row = $this->model->get($ids);
+        if (!$row) {
+            $this->error(__('No Results were found'));
+        }
+        $adminIds = $this->getDataLimitAdminIds();
+        if (is_array($adminIds) && !in_array($row[$this->dataLimitField], $adminIds)) {
+            $this->error(__('You have no permission'));
+        }
+        if (false === $this->request->isPost()) {
+            $this->view->assign('row', $row);
+            return $this->view->fetch();
+        }
+        $params = $this->request->post('row/a');
+        if (empty($params)) {
+            $this->error(__('Parameter %s can not be empty', ''));
+        }
+        
+        //冠亚
+        $params['team1'] = '{}';
+        $params['team2'] = '{}';
+        if(!empty($params['win_match_id'])){
+            $team1 = [];
+            $team2 = [];
+            $game = Db::name('dota_player_heroes')->where('match_id',$params['win_match_id'])->select();
+            foreach($game as $k => $v){
+                if($v['is_winner'] == 1){
+                    $team1[$v['steamid']] = $v['hero_id'];
+                }else{
+                    $team2[$v['steamid']] = $v['hero_id'];
+                }
+            }
+            $params['team1'] = json_encode($team1);
+            $params['team2'] = json_encode($team2);
+        }
+        
+        //季殿
+        $params['team3'] = '{}';
+        $params['team4'] = '{}';
+        if(!empty($params['lose_match_id'])){
+            $team3 = [];
+            $team4 = [];
+            $game = Db::name('dota_player_heroes')->where('match_id',$params['lose_match_id'])->select();
+            
+            foreach($game as $k => $v){
+                if($v['is_winner'] == 1){
+                    $team3[$v['steamid']] = $v['hero_id'];
+                }else{
+                    $team4[$v['steamid']] = $v['hero_id'];
+                }
+            }
+            $params['team3'] = json_encode($team3);
+            $params['team4'] = json_encode($team4);
+        }
+        
+        $params = $this->preExcludeFields($params);
+        $result = false;
+        Db::startTrans();
+        try {
+            //是否采用模型验证
+            if ($this->modelValidate) {
+                $name = str_replace("\\model\\", "\\validate\\", get_class($this->model));
+                $validate = is_bool($this->modelValidate) ? ($this->modelSceneValidate ? $name . '.edit' : $name) : $this->modelValidate;
+                $row->validateFailException()->validate($validate);
+            }
+            $result = $row->allowField(true)->save($params);
+            Db::commit();
+        } catch (ValidateException|PDOException|Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage());
+        }
+        if (false === $result) {
+            $this->error(__('No rows were updated'));
         }
         $this->success();
     }

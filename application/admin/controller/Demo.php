@@ -130,7 +130,8 @@ class Demo extends Backend
                 'steamid' => $p['steamid'],
                 'hero_id' => $hero_id,
                 'game_team' => $p['game_team'],
-                'is_winner' => ($p['game_team'] == $winner_team) ? 1 : 0
+                'is_winner' => ($p['game_team'] == $winner_team) ? 1 : 0,
+                'end_time' => $end_time
             ]);
         }
         

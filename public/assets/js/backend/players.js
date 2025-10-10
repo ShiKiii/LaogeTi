@@ -9,6 +9,10 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     multi_url: 'players/multi',
                     import_url: 'players/import',
                     table: 'dota_players',
+                },
+                queryParams: function (params) {
+                    params.league_id = $('#league_select').val();
+                    return params;
                 }
             });
 
@@ -18,7 +22,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
-                sortName: 'id',
+                sortName: 'win_rate',
                 escape: false,
                 columns: [
                     [
@@ -45,7 +49,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                             if(!value) return '';
                             return value.map(h=> h.hero_img+'('+h.play + ' / ' + h.win_rate+'%)').join(' ');
                         }},
-                        {field: 'champion', title: __('TI冠军'), operate:false},
+                        {field: 'champion', title: __('历史荣誉'), operate:false},
                     ]
                 ]
             });

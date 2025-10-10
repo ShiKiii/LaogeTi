@@ -70,6 +70,8 @@ class Players extends Backend
             }
         }
         
+        //过滤小号查询
+        $bindSteamid = config('bindSteamid');
         $list = $this->model
                     ->alias('p')
                     ->join('fa_dota_player_heroes ph', 'ph.steamid = p.steamid')
@@ -89,9 +91,11 @@ class Players extends Backend
                     ->paginate($limit);
             
         $heroes = config('heroes');
-        foreach ($list as $k => $v) {
+        
+        foreach ($list as $k => &$v) {
+            
             // 按赛季筛选玩家比赛
-            $player_heroes_query = Db::name('dota_player_heroes')->where('steamid', $v->steamid);
+            $player_heroes_query = Db::name('dota_player_heroes')->whereIn('steamid', $v->steamid);
         
             if ($start && $end) {
                 $player_heroes_query = $player_heroes_query
@@ -103,21 +107,17 @@ class Players extends Backend
             $player_heroes_data = $player_heroes_query->select();
             
             //TI冠军
-            $tis = Db::name('dota_champion')->whereRaw('JSON_CONTAINS_PATH(team, "one", \'$."'.$v->steamid.'"\')')->select();
+            $tis = Db::name('dota_major_history')->whereRaw('JSON_CONTAINS_PATH(team, "one", \'$."'.$v->steamid.'"\')')->select();
             
             $v->champion = "";
             if(!empty($tis)){
                 for ($i = 0; $i < count($tis); $i++) {
                      $v->champion .= "<span class='trophy' data-toggle='tooltip' data-placement='top'
-                                          title='".$tis[$i]['ti_name']."'>
-                                        🏆
-                                    </span>";
+                                          title='".$tis[$i]['ti_name']."'>🏆</span>";
                 }
             }
             
-            
             $hero_stats = []; // hero_id => ['play'=>x,'win'=>y]
-
             foreach ($player_heroes_data as $ph) {
                 $hid = $ph['hero_id'];
                 if (!isset($hero_stats[$hid])) $hero_stats[$hid] = ['play'=>0,'win'=>0];

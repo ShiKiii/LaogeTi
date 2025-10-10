@@ -5,13 +5,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格参数配置
             Table.api.init({
                 extend: {
-                    index_url: 'champion/index' + location.search,
-                    add_url: 'champion/add',
-                    edit_url: 'champion/edit',
-                    del_url: 'champion/del',
-                    multi_url: 'champion/multi',
-                    import_url: 'champion/import',
-                    table: 'dota_champion',
+                    index_url: 'majorhistory/index' + location.search,
+                    add_url: 'majorhistory/add',
+                    del_url: 'majorhistory/del',
+                    import_url: 'majorhistory/import',
+                    table: 'dota_majorhistory',
                 }
             });
 
@@ -27,11 +25,9 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                     [
                         {checkbox: true},
                         {field: 'id', title: __('Id'), visible: false, operate: false},
+                        {field: 'match_id', title: __('比赛编号')},
                         {field: 'ti_name', title: __('比赛名称'), operate: 'LIKE', table: table, class: 'autocontent', formatter: Table.api.formatter.content},
-                        {field: 'team1', title: __('冠军'), operate: false},
-                        {field: 'team2', title: __('亚军'), operate: false},
-                        {field: 'team3', title: __('季军'), operate: false},
-                        {field: 'team4', title: __('殿军'), operate: false},
+                        {field: 'team', title: __('冠军团队'), operate: false},
                         {field: 'operate', title: __('Operate'), table: table, events: Table.api.events.operate, formatter: Table.api.formatter.operate}
                     ]
                 ]
