@@ -18,7 +18,7 @@ class Banpick extends Backend
      * @var \app\admin\model\Banpick
      */
     protected $model = null;
-    protected $noNeedRight = [];
+    protected $noNeedRight = ['recentMatches'];
 
     public function _initialize()
     {
@@ -45,12 +45,26 @@ class Banpick extends Backend
     {
         // 页面加载时获取所有赛季
         $leagues = Db::name('dota_league')->where('status',1)->order('start_time desc')->select();
+        
+        // 联赛筛选
+        $league_id = $this->request->get('league_id') ?? '';
+        $start = null;
+        $end   = null;
+        
+        if ($league_id) {
+            $league = Db::name('dota_league')->where('id', $league_id)->find();
+            if ($league) {
+                $start = strtotime($league['start_time']);
+                $end   = strtotime($league['end_time']);
+            }
+        }
             
         // 读取 heroes 配置（assume key=hero_id）
         $heroes = config('heroes');
     
         // 1) Pick 数 Top10（直接按 player_heroes 表计数）
         $pickTop = Db::name('dota_player_heroes')
+            ->where($start && $end ? "end_time BETWEEN $start AND $end" : '')
             ->field('hero_id, COUNT(*) as pick_count')
             ->group('hero_id')
             ->order('pick_count DESC')
@@ -59,6 +73,9 @@ class Banpick extends Backend
     
         // 2) Ban 数 Top10（需要有 picks_bans 表，字段示例: hero_id, is_ban）
         $banTop = Db::name('dota_banpicks')
+            ->alias('b')
+            ->join('fa_dota_matches m', 'm.match_id = b.match_id')
+            ->where($start && $end ? "m.end_time BETWEEN $start AND $end" : '')
             ->where('is_pick', 0)
             ->field('hero_id, COUNT(*) as ban_count')
             ->group('hero_id')
@@ -71,6 +88,7 @@ class Banpick extends Backend
         // 3) 胜率 Top10（带 play_count / win_count / win_rate），过滤出场次数过少的英雄（阈值可改）
         $min_play = 4;
         $winTop = Db::name('dota_player_heroes')
+                ->where($start && $end ? "end_time BETWEEN $start AND $end" : '')
                 ->field("
                     hero_id, 
                     COUNT(*) as play_count, 
@@ -85,6 +103,7 @@ class Banpick extends Backend
     
         // 4) 胜率最低 Top10
         $lowWinTop = Db::name('dota_player_heroes')
+                ->where($start && $end ? "end_time BETWEEN $start AND $end" : '')
                 ->field("
                     hero_id,
                     COUNT(*) as play_count,
@@ -137,10 +156,53 @@ class Banpick extends Backend
     
             'winListJson'   => json_encode($winTop, JSON_UNESCAPED_UNICODE),
             'lowWinListJson'   => json_encode($lowWinTop, JSON_UNESCAPED_UNICODE),
-            'min_play'      => $min_play
+            'min_play'      => $min_play,
+            'league_id'    => $league_id
         ]);
     
         return $this->view->fetch(); // 渲染视图
+    }
+    
+    
+
+    /**
+     * 获取英雄最近的驾驶员
+     */
+    public function recentMatches($hero_id = 0, $offset = 0, $limit = 10, $league_id = '')
+    {
+        if (!$hero_id) {
+            $this->error('Invalid HeroId');
+        }
+        
+        // 联赛筛选
+        $start = null;
+        $end   = null;
+        
+        if (!empty($league_id)) {
+            $league = Db::name('dota_league')->where('id', $league_id)->find();
+            if ($league) {
+                $start = strtotime($league['start_time']);
+                $end   = strtotime($league['end_time']);
+            }
+        }
+
+        $matches = Db::name('dota_player_heroes')
+            ->alias('ph')
+            ->join('dota_players p', 'ph.steamid = p.steamid')
+            ->field('ph.match_id, ph.hero_id, ph.is_winner, ph.end_time, p.player_name')
+            ->where('ph.hero_id', $hero_id)
+            ->where($start && $end ? "end_time BETWEEN $start AND $end" : '')
+            ->order('end_time DESC')
+            ->limit($offset, $limit)
+            ->select();
+
+        foreach ($matches as &$row) {
+            $row['player_name'] = $row['player_name'];
+            $row['result'] = $row['is_winner'] ? '✅' :'❌';
+            $row['match_time'] = date('Y-m-d H:i', $row['end_time']);
+        }
+
+        $this->success('', null, $matches);
     }
 
 

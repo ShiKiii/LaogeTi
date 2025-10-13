@@ -24,7 +24,7 @@
         <select id="league_select" class="form-control">
             <option value="">全部赛季</option>
             {volist name="leagues" id="league"}
-                <option value="{$league.id}">{$league.name}</option>
+                <option value="{$league.id}" {eq name="$league.id" value="$league_id"}selected{/eq}>{$league.name}</option>
             {/volist}
         </select>
     </div>
@@ -54,7 +54,7 @@
                 <?php if($i==1): ?><div class="crown gold">👑</div><?php elseif($i==2): ?><div class="crown silver">🥈</div><?php elseif($i==3): ?>
                 <div class="crown bronze">🥉</div>
                 <?php endif; ?>
-                <img src="<?php echo $h['img']; ?>" alt="<?php echo $h['name']; ?>">
+                <img class="hero-link" data-hero-id="{$h['hero_id']}" src="<?php echo $h['img']; ?>" alt="<?php echo $h['name']; ?>">
                 <div style="margin-top:6px;font-weight:600;"><?php echo $h['name']; ?></div>
                 <div style="color:#28a745;font-weight:700;"><?php echo $h['win_rate']; ?>%</div>
                 <div style="font-size:12px;color:#777;"><?php echo $h['win_count']; ?>/<?php echo $h['play_count']; ?></div>
@@ -71,7 +71,7 @@
                 <?php if($i==1): ?><div class="crown gold">💀</div><?php elseif($i==2): ?><div class="crown silver">🥈</div><?php elseif($i==3): ?>
                 <div class="crown bronze">🥉</div>
                 <?php endif; ?>
-                <img src="<?php echo $h['img']; ?>" alt="<?php echo $h['name']; ?>">
+                <img class="hero-link" data-hero-id="{$h['hero_id']}" src="<?php echo $h['img']; ?>" alt="<?php echo $h['name']; ?>">
                 <div style="margin-top:6px;font-weight:600;"><?php echo $h['name']; ?></div>
                 <div style="color:#28a745;font-weight:700;"><?php echo $h['win_rate']; ?>%</div>
                 <div style="font-size:12px;color:#777;"><?php echo $h['win_count']; ?>/<?php echo $h['play_count']; ?></div>
@@ -86,6 +86,86 @@
 <script src="/assets/js/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 <script>
+
+// 选择联赛
+$('#league_select').change(function(){
+    var league_id = $(this).val();
+    window.location.href = "/banpick/index?league_id="+league_id+"";
+});
+
+// 点击英雄显示最近驾驶员
+$(document).on('click', '.hero-link', function(){
+    var heroId = $(this).data('hero-id');
+    var offset = 0;
+    var limit = 10;
+    var loading = false;
+    var hasMore = true;
+    
+    var league_id = $('#league_select').val();
+
+    var html = '<div id="matchContainer" style="height:380px; overflow-y:auto; padding:10px;">' +
+              '<div style="width:100%;text-align:center;margin-bottom: 5px"><img src="'+this.src+'" style="width:50px;height:28px;"></div>' +
+               '<table class="table table-bordered" style="width:100%">' +
+               '<tr><th>选手</th><th style="text-align:center;">胜负</th><th style="text-align:center;">结束时间</th></tr>' +
+               '</table></div>';
+    
+    layer.open({
+        type: 1,
+        title: '最近驾驶员',
+        area: ['auto','auto'], // 高度 auto，Layer 不再加滚动条
+        maxWidth: 600,                // 最大宽度，桌面端不会太宽
+        maxHeight: '80vh',            // 最大高度，防止移动端超出屏幕
+        content: html,
+        scrollbar: false
+    });
+
+    // 弹窗打开后再获取容器
+    var $container = $('#matchContainer');
+    var $table = $container.find('table');
+
+    function loadMatches(){
+        if(loading || !hasMore) return;
+        loading = true;
+
+        $.ajax({
+            url: '/banpick/recentMatches',
+            data: {hero_id: heroId, offset: offset, limit: limit, league_id: league_id},
+            success: function(res){
+                loading = false;
+                if(res.code == 1 && res.data.length){
+                    res.data.forEach(function(match){
+                        var row = '<tr>';
+                        row += '<td style="text-align:center">'+match.player_name+'</td>';
+                        row += '<td style="text-align:center">'+match.result+'</td>';
+                        row += '<td style="text-align:center">'+match.match_time+'</td>';
+                        row += '</tr>';
+                        $table.append(row);
+                    });
+                    offset += res.data.length;
+
+                    if(res.data.length < limit){
+                        hasMore = false;
+                        $table.append('<tr><td colspan="3" style="text-align:center;color:#999;">没有更多记录</td></tr>');
+                    }
+                } else {
+                    hasMore = false;
+                    $table.append('<tr><td colspan="3" style="text-align:center;color:#999;">没有更多记录</td></tr>');
+                }
+            }
+        });
+    }
+
+    // 滚动加载
+    $container.on('scroll', function(){
+        if($container.scrollTop() + $container.innerHeight() >= $container[0].scrollHeight - 10){
+            loadMatches();
+        }
+    });
+
+    // 初次加载
+    loadMatches();
+});
+
 /* 从后端注入的 JSON（控制器中已赋值） */
 var pickNames  = <?php echo $pickNamesJson ?? '[]'; ?>;
 var pickCounts = <?php echo $pickCountsJson ?? '[]'; ?>;
