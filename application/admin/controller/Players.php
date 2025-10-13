@@ -18,6 +18,7 @@ class Players extends Backend
      * @var \app\admin\model\Players
      */
     protected $model = null;
+    protected $noNeedRight = ['getWinRate', 'getAverageNum', 'getTotalNum', 'getAverageWinRate', 'getResultWinRate'];
 
     public function _initialize()
     {
@@ -56,6 +57,11 @@ class Players extends Backend
             return $this->selectpage();
         }
         [$where, $sort, $order, $offset, $limit] = $this->buildparams();
+        $sort_final_rate = 0;
+        if($sort == 'final_rate'){
+            $sort_final_rate = 1;
+            $sort = '';
+        }
         
         // 联赛筛选
         $league_id = $this->request->get('league_id');
@@ -70,7 +76,6 @@ class Players extends Backend
             }
         }
         
-        //过滤小号查询
         $bindSteamid = config('bindSteamid');
         $list = $this->model
                     ->alias('p')
@@ -92,7 +97,10 @@ class Players extends Backend
             
         $heroes = config('heroes');
         
+        $paid_players_data = [];
         foreach ($list as $k => &$v) {
+            // 最终结果胜率初始化
+            $v->final_rate = "0.00";
             
             // 按赛季筛选玩家比赛
             $player_heroes_query = Db::name('dota_player_heroes')->whereIn('steamid', $v->steamid);
@@ -117,6 +125,25 @@ class Players extends Backend
                 }
             }
             
+            //是不是付费选手,并且比赛场次>=5
+            $v->paid_player = 0;
+            if ($league_id) {
+                $paid_players = json_decode($league['players'], true);
+                if(in_array($v->steamid, $paid_players)){
+                    $v->paid_player = 1;
+                    if($v->all_matches_count >= 5){
+                        $data = [];
+                        $data['steamid'] = $v->steamid;
+                        $data['win'] = $v->win_count;
+                        $data['lose'] = $v->lose_count;
+                        $data['count'] = $v->all_matches_count;
+                        $data['win_rate'] = $v->win_rate;
+                        $paid_players_data[] = $data;
+                    }
+                }
+            }
+            
+            //计算英雄榜
             $hero_stats = []; // hero_id => ['play'=>x,'win'=>y]
             foreach ($player_heroes_data as $ph) {
                 $hid = $ph['hero_id'];
@@ -151,7 +178,48 @@ class Players extends Backend
             }
         }
         
-        $result = ['total' => $list->total(), 'rows' => $list->items()];
+        //获取最终结果胜率
+        if(count($paid_players_data) > 0){
+            // 平均场次数
+            $avaNum = $this->getAverageNum($paid_players_data);
+            
+            // 总场次数
+            $totalNum = $this->getTotalNum($paid_players_data);
+            
+            // 平均加权胜率
+            $aveWinrate = $this->getAverageWinRate($paid_players_data, $totalNum);
+            
+            $rateMap = [];
+            foreach ($paid_players_data as $item) {
+                $rateMap[$item['steamid']] = $this->getResultWinRate($item, $avaNum, $aveWinrate);
+            }
+            foreach ($list as $item) {
+                $item->final_rate = isset($rateMap[$item->steamid]) ? $rateMap[$item->steamid] : '0.00';
+            }
+        }
+        
+        // ✅ 支持前端按 final_rate 排序
+        if ($sort_final_rate === 1) {
+            $list = $list->toArray();
+            usort($list['data'], function ($a, $b) use ($order) {
+                $a_rate = floatval($a['final_rate']);
+                $b_rate = floatval($b['final_rate']);
+                return $order === 'asc' ? $a_rate <=> $b_rate : $b_rate <=> $a_rate;
+            });
+    
+            $result = [
+                'total' => $list['total'],
+                'rows' => $list['data']
+            ];
+        } else {
+            // 默认分页返回
+            $result = [
+                'total' => $list->total(),
+                'rows' => $list->items()
+            ];
+        }
+        
+        // $result = ['total' => $list->total(), 'rows' => $list->items()];
         return json($result);
     }
     
@@ -187,6 +255,61 @@ class Players extends Backend
 
         $this->success('', null, $matches);
     }
+    
+    // 获取胜率
+    function getWinRate($obj)
+    {
+        if ($obj['count'] == 0) return 0;
+        return $obj['win'] / $obj['count'];
+    }
 
+    // 获取平均场次数
+    function getAverageNum($arr)
+    {
+        $total = 0;
+        foreach ($arr as $item) {
+            $total += $item['count'];
+        }
+        return $total / count($arr);
+    }
+    
+    // 获取总场次数
+    function getTotalNum($arr)
+    {
+        $total = 0;
+        foreach ($arr as $item) {
+            $total += $item['count'];
+        }
+        return $total;
+    }
+    
+    // 获取平均加权胜率
+    function getAverageWinRate($arr, $totalNum)
+    {
+        $aveWinrate = 0;
+    
+        foreach ($arr as $item) {
+            $aveWinrate += $this->getWinRate($item) * ($item['count'] / $totalNum);
+        }
+    
+        return $aveWinrate;
+    }
+    
+    // 获取最终结果胜率
+    function getResultWinRate($obj, $avaNum, $aveWinrate)
+    {
+        if ($obj['count'] > $avaNum) {
+            $adjusted = ($obj['win'] - ($obj['count'] - $avaNum) * $aveWinrate) / $avaNum;
+        } elseif ($obj['count'] < $avaNum) {
+            $adjusted = ($obj['win'] + ($avaNum - $obj['count']) * $aveWinrate) / $avaNum;
+        } else {
+            $adjusted = $this->getWinRate($obj);
+        }
+    
+        // 限制范围在0~1之间，防止出现负数或超过100%
+        $adjusted = max(0, min(1, $adjusted));
+    
+        return number_format($adjusted * 100, 2);
+    }
 
 }

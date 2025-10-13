@@ -21,6 +21,8 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
+                pagination: false,  // 不分页
+                pageSize: 9999,
                 pk: 'id',
                 sortName: 'win_rate',
                 escape: false,
@@ -33,6 +35,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                         {field: 'lose_count', title: __('败场'), operate:false, sortable: true},
                         {field: 'all_matches_count', title: __('总场次'), operate:false, sortable: true},
                         {field: 'win_rate', title: __('胜率'), operate:false, sortable: true,
+                            formatter: function(value, row, index) {
+                                return value + '%';
+                            }
+                        },
+                        {field: 'final_rate', title: __('加权胜率'), sortable: true, operate:false,
                             formatter: function(value, row, index) {
                                 return value + '%';
                             }

@@ -25,11 +25,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form'], function ($, undefin
                 columns: [
                     [
                         {checkbox: true},
-                        {field: 'id', title: 'ID'},
+                        {field: 'id', title: 'ID', visible: false},
                         {field: 'name', title: '联赛名称', operate: 'LIKE'},
                         {field: 'start_time', title: __('Start_time'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
                         {field: 'end_time', title: __('End_time'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
-                        {field: 'price', title: __('奖金'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
+                        {field: 'fee', title: __('报名费'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
+                        {field: 'players_count', title: __('参赛人数'), operate:false},
+                        {field: 'price', title: __('总奖金'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
                         {field: 'notes', title: __('备注'), operate:'RANGE', addclass:'datetimerange', autocomplete:false},
                         {field: 'status', title: "是否启用", operate: false, formatter: Table.api.formatter.toggle},
                         {field: 'create_time', title: __('Create_time'), operate:'RANGE', addclass:'datetimerange', autocomplete:false, formatter: Table.api.formatter.datetime},
